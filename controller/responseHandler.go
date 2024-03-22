@@ -5,6 +5,12 @@ import (
 	"net/http"
 )
 
+type Response struct {
+	Code int
+	Msg  string
+	Data interface{} // interface{} 等於any
+}
+
 func respHandle(w http.ResponseWriter, msg string, code int, data interface{}) {
 	switch code {
 	case 200:
@@ -23,7 +29,7 @@ func respHandle(w http.ResponseWriter, msg string, code int, data interface{}) {
 		Msg:  msg,
 		Data: data,
 	}
-	jsonResp, _ := json.Marshal(resp)
+	jsonResp, _ := json.Marshal(resp) // json.Marshal 一般型態或指針都可處理
 	w.Write(jsonResp)
 }
 

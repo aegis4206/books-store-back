@@ -8,12 +8,6 @@ import (
 	"net/http"
 )
 
-type Response struct {
-	Code int
-	Msg  string
-	Data interface{}
-}
-
 func Login(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
