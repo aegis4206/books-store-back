@@ -3,6 +3,10 @@ package model
 import (
 	"books-store/utils"
 	"fmt"
+
+	"strings"
+
+	"github.com/lib/pq"
 )
 
 type Book struct {
@@ -40,4 +44,25 @@ func AddBook(book *Book) (*Book, error) {
 		return nil, err
 	}
 	return book, nil
+}
+
+func EditBook(id string, book *Book) (*Book, error) {
+	fmt.Println(book)
+	sqlStr := "update books set title=$2,author=$3,pyear=$4,price=$5,sales=$6,stock=$7,imgpath=$8 where id = $1"
+	_, err := utils.Db.Exec(sqlStr, id, &book.Title, &book.Author, &book.Pyear, &book.Price, &book.Sales, &book.Stock, &book.ImgPath)
+	if err != nil {
+		return nil, err
+	}
+	return book, nil
+}
+
+func DeleteBook(id string) error {
+	fmt.Println(id)
+	idSlice := strings.Split(id, ",")
+	sqlStr := "delete from books where id = any($1)"
+	_, err := utils.Db.Exec(sqlStr, pq.Array(idSlice))
+	if err != nil {
+		return err
+	}
+	return nil
 }

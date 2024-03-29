@@ -12,8 +12,8 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/login", controller.Login).Methods("POST")
 	r.HandleFunc("/regist", controller.Regist).Methods("POST")
-	r.HandleFunc("/books", controller.Books).Methods("GET", "POST")
-	r.HandleFunc("/books/{Id}", controller.Books).Methods("PUT")
+	r.HandleFunc("/books", controller.Books).Methods("GET", "POST", "DELETE")
+	r.HandleFunc("/books/{Id}", controller.Books).Methods("PUT", "DELETE")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
