@@ -12,8 +12,13 @@ import (
 )
 
 func Books(w http.ResponseWriter, r *http.Request) {
+	isLogin := SessionCheck(r)
+	if !isLogin {
+		respHandle(w, "請重新登入", 500, nil)
+		return
+	}
 	fmt.Println("請求方法", r.Method)
-	w.Header().Set("Content-Type", "application/json")
+	// w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case "GET":
 		books, err := model.GetBooks()
@@ -81,29 +86,5 @@ func Books(w http.ResponseWriter, r *http.Request) {
 		respHandle(w, "請求成功", 200, list)
 	default:
 	}
-
-	// body, err := io.ReadAll(r.Body)
-	// if err != nil {
-	// 	w.WriteHeader(500)
-	// }
-	// w.Header().Set("Content-Type", "application/json")
-
-	// var data model.User
-	// err = json.Unmarshal(body, &data)
-	// if err != nil {
-	// 	respHandle(w, "格式錯誤", 500, body)
-	// 	return
-	// }
-	// fmt.Println(data.Password)
-	// fmt.Println(data.Email)
-	// defer r.Body.Close()
-
-	// user, _ := model.CheckEmailAndPassword(data.Email, data.Password)
-	// if user.Id > 0 {
-	// 	respHandle(w, "登入成功", 200, data)
-
-	// } else {
-	// 	respHandle(w, "帳號密碼錯誤", 400, data)
-	// }
 
 }

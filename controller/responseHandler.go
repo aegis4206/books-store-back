@@ -12,6 +12,7 @@ type Response struct {
 }
 
 func respHandle(w http.ResponseWriter, msg string, code int, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
 	switch code {
 	case 200:
 		w.WriteHeader(http.StatusOK)
