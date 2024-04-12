@@ -12,9 +12,8 @@ import (
 )
 
 func Books(w http.ResponseWriter, r *http.Request) {
-	isLogin := SessionCheck(r)
-	if !isLogin {
-		respHandle(w, "請重新登入", 500, nil)
+	res := SessionCheck(w, r)
+	if !res {
 		return
 	}
 	fmt.Println("請求方法", r.Method)

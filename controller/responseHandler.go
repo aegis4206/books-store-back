@@ -16,6 +16,8 @@ func respHandle(w http.ResponseWriter, msg string, code int, data interface{}) {
 	switch code {
 	case 200:
 		w.WriteHeader(http.StatusOK)
+	case 302:
+		w.WriteHeader(302)
 	case 400:
 		w.WriteHeader(http.StatusBadRequest)
 	case 404:

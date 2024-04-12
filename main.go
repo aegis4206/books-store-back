@@ -17,7 +17,7 @@ func main() {
 	r.HandleFunc("/books/{Id}", controller.Books).Methods("PUT", "DELETE")
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://127.0.0.1:5173"},
+		AllowedOrigins:   []string{"http://127.0.0.1:5173", "http://192.168.6.87:5173"},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
 		AllowedHeaders:   []string{"Accept", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization"},

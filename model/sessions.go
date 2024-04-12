@@ -1,6 +1,8 @@
 package model
 
-import "books-store/utils"
+import (
+	"books-store/utils"
+)
 
 type Session struct {
 	Session_id string
@@ -10,7 +12,8 @@ type Session struct {
 
 func AddSession(sess *Session) error {
 	sqlStr := "insert into sessions values($1,$2,$3)"
-	_, err := utils.Db.Exec(sqlStr, sess.Session_id, sess.User_name, sess.User_id)
+	_, err := utils.Db.Exec(sqlStr, &sess.Session_id, &sess.User_name, &sess.User_id)
+
 	if err != nil {
 		return err
 	}

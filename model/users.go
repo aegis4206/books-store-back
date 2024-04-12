@@ -5,9 +5,10 @@ import (
 )
 
 type User struct {
-	Id       int
-	Email    string
-	Password string
+	Id        int
+	Email     string
+	Password  string
+	SessionId string
 }
 
 func CheckEmailAndPassword(email string, password string) (*User, error) {

@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"time"
 
+	"strconv"
+
 	"github.com/gofrs/uuid"
 )
 
@@ -40,7 +42,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		model.AddSession(sess)
 		expiration := time.Now().Add(24 * time.Hour)
 		cookie := http.Cookie{
-			Name:  "user",
+			Name:  "SessionId",
 			Value: uuid.String(),
 			// HttpOnly: true,
 			Expires:  expiration,
@@ -50,13 +52,22 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 		http.SetCookie(w, &cookie)
 		cookie2 := http.Cookie{
-			Name:     "user_name",
+			Name:     "Email",
 			Value:    user.Email,
 			Expires:  expiration,
 			SameSite: http.SameSiteNoneMode,
 			Secure:   true,
 		}
 		http.SetCookie(w, &cookie2)
+		cookie3 := http.Cookie{
+			Name:     "Id",
+			Value:    strconv.Itoa(user.Id),
+			Expires:  expiration,
+			SameSite: http.SameSiteNoneMode,
+			Secure:   true,
+		}
+		http.SetCookie(w, &cookie3)
+		user.SessionId = sess.Session_id
 		respHandle(w, "登入成功", 200, user)
 
 	} else {
@@ -89,24 +100,50 @@ func Regist(w http.ResponseWriter, r *http.Request) {
 }
 
 func Logout(w http.ResponseWriter, r *http.Request) {
-	cookie, _ := r.Cookie("user")
-	if cookie != nil {
-		cookieValue := cookie.Value
-		model.DeleteSession(cookieValue)
-		cookie.MaxAge = -1
-		http.SetCookie(w, cookie)
-		respHandle(w, "登出成功", 200, cookieValue)
+	var cookieDelete = CookieDelete(w, r)
+	cookie, err := r.Cookie("SessionId")
+	if err != nil {
+		respHandle(w, "登出成功", 200, "無SessionId")
+		return
 	}
+	cookieValue := cookie.Value
+	model.DeleteSession(cookieValue)
+	cookieDelete("SessionId")
+	cookieDelete("Email")
+	cookieDelete("Id")
+	respHandle(w, "登出成功", 200, cookieValue)
 }
 
 // session check
-func SessionCheck(r *http.Request) bool {
-	cookie, _ := r.Cookie("user")
-	if cookie != nil {
-		sess, _ := model.GetSessionByID(cookie.Value)
-		if sess.User_id > 0 {
-			return true
-		}
+func SessionCheck(w http.ResponseWriter, r *http.Request) bool {
+	cookie, err := r.Cookie("SessionId")
+	if err != nil {
+		respHandle(w, "請重新登入", 400, nil)
+		return false
+	}
+	sess, err := model.GetSessionByID(cookie.Value)
+	if err != nil {
+		var cookieDelete = CookieDelete(w, r)
+		cookieDelete("SessionId")
+		cookieDelete("Email")
+		cookieDelete("Id")
+		respHandle(w, "資料庫無seionss，請重新登入", 400, nil)
+		return false
+	}
+	if sess.User_id > 0 {
+		return true
 	}
 	return false
+}
+
+// cookie註銷
+func CookieDelete(w http.ResponseWriter, r *http.Request) func(target string) {
+	return func(target string) {
+		cookie, err := r.Cookie(target)
+		if err != nil {
+			return
+		}
+		cookie.MaxAge = -1
+		http.SetCookie(w, cookie)
+	}
 }
