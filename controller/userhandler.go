@@ -45,26 +45,26 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			Name:  "SessionId",
 			Value: uuid.String(),
 			// HttpOnly: true,
-			Expires:  expiration,
-			SameSite: http.SameSiteNoneMode,
-			Secure:   true,
-			// Domain:   "localhost",
+			Expires: expiration,
+			// SameSite: http.SameSiteNoneMode,
+			// Secure:   true,
+			// Domain:   "http://192.168.6.87:5173",
 		}
 		http.SetCookie(w, &cookie)
 		cookie2 := http.Cookie{
-			Name:     "Email",
-			Value:    user.Email,
-			Expires:  expiration,
-			SameSite: http.SameSiteNoneMode,
-			Secure:   true,
+			Name:    "Email",
+			Value:   user.Email,
+			Expires: expiration,
+			// SameSite: http.SameSiteNoneMode,
+			// Secure:   true,
 		}
 		http.SetCookie(w, &cookie2)
 		cookie3 := http.Cookie{
-			Name:     "Id",
-			Value:    strconv.Itoa(user.Id),
-			Expires:  expiration,
-			SameSite: http.SameSiteNoneMode,
-			Secure:   true,
+			Name:    "Id",
+			Value:   strconv.Itoa(user.Id),
+			Expires: expiration,
+			// SameSite: http.SameSiteNoneMode,
+			// Secure:   true,
 		}
 		http.SetCookie(w, &cookie3)
 		user.SessionId = sess.Session_id
@@ -114,12 +114,12 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	respHandle(w, "登出成功", 200, cookieValue)
 }
 
-// session check
-func SessionCheck(w http.ResponseWriter, r *http.Request) bool {
+// SessionCheck是否登入
+func SessionCheck(w http.ResponseWriter, r *http.Request) *model.Session {
 	cookie, err := r.Cookie("SessionId")
 	if err != nil {
 		respHandle(w, "請重新登入", 400, nil)
-		return false
+		return nil
 	}
 	sess, err := model.GetSessionByID(cookie.Value)
 	if err != nil {
@@ -128,12 +128,12 @@ func SessionCheck(w http.ResponseWriter, r *http.Request) bool {
 		cookieDelete("Email")
 		cookieDelete("Id")
 		respHandle(w, "資料庫無seionss，請重新登入", 400, nil)
-		return false
+		return nil
 	}
 	if sess.User_id > 0 {
-		return true
+		return sess
 	}
-	return false
+	return nil
 }
 
 // cookie註銷

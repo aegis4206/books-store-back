@@ -81,15 +81,27 @@ func AddCart(cart *Cart) error {
 	return nil
 }
 
-func GetCartItemByBookId(bookId string) (*CartItem, error) {
-	sqlStr := "select id,cart_id,count,amount,book_id from cart_items where book_id = $1"
-	row := utils.Db.QueryRow(sqlStr, bookId)
+func GetCartItemByBookIdAndCartId(bookId string, cartId string) (*CartItem, error) {
+	sqlStr := "select id,cart_id,count,amount from cart_items where book_id = $1 and cart_id = $2"
+	row := utils.Db.QueryRow(sqlStr, bookId, cartId)
 	cartItem := &CartItem{}
-	err := row.Scan(&cartItem.CartItemId, &cartItem.CartId, &cartItem.Count, &cartItem.Amount, &cartItem.Book.Id)
+	err := row.Scan(&cartItem.CartItemId, &cartItem.CartId, &cartItem.Count, &cartItem.Amount)
 	if err != nil {
 		return nil, err
 	}
+	// book := GetBookById(bookId)
+	// cartItem.Book = book
 	return cartItem, nil
+}
+
+// 會變更的僅有數量
+func UpdateCartItemByBookIdAndCartId(bookId string, cartId string, bookCount int) error {
+	sqlStr := "update cart_items set count = $1 where book_id = $2 and cart_id = $3"
+	_, err := utils.Db.Exec(sqlStr, bookCount, bookId, cartId)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func GetCartItemsByCartId(cartId string) ([]*CartItem, error) {
@@ -102,19 +114,23 @@ func GetCartItemsByCartId(cartId string) ([]*CartItem, error) {
 
 	for rows.Next() {
 		cartItem := &CartItem{}
-		err = rows.Scan(&cartItem.CartItemId, &cartItem.CartId, &cartItem.Count, &cartItem.Amount, &cartItem.Book.Id)
+		var bookId string
+		//需將book_id關連到完整的book
+		err = rows.Scan(&cartItem.CartItemId, &cartItem.CartId, &cartItem.Count, &cartItem.Amount, &bookId)
 		if err != nil {
 			return nil, err
 		}
+		book := GetBookById(bookId)
+		cartItem.Book = book
 		cartItems = append(cartItems, cartItem)
 	}
 
 	return cartItems, nil
 }
 
-func GetCartByUserId(cartId string) (*Cart, error) {
+func GetCartByUserId(userId string) (*Cart, error) {
 	sqlStr := "select id,total_count,total_amount,user_id from carts where user_id = $1"
-	row := utils.Db.QueryRow(sqlStr, cartId)
+	row := utils.Db.QueryRow(sqlStr, userId)
 	cart := &Cart{}
 	err := row.Scan(&cart.CartId, &cart.TotalCount, &cart.TotalAmount, &cart.UserId)
 	if err != nil {
@@ -127,4 +143,14 @@ func GetCartByUserId(cartId string) (*Cart, error) {
 	cart.CartItems = cartItems
 
 	return cart, nil
+}
+
+func UpdateCart(cart *Cart) error {
+	sqlStr := "update carts set total_count=$1,total_amount=$2 where id=$3"
+	_, err := utils.Db.Exec(sqlStr, cart.GetTotalCount(), cart.GetTotalAmount(), cart.CartId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

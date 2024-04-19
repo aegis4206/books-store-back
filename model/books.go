@@ -66,3 +66,14 @@ func DeleteBook(id string) error {
 	}
 	return nil
 }
+
+func GetBookById(bookId string) *Book {
+	sqlStr := "select id,title,author,pyear,price,sales,stock,imgpath from books where id = $1"
+	row := utils.Db.QueryRow(sqlStr, bookId)
+	book := &Book{}
+	err := row.Scan(&book.Id, &book.Title, &book.Author, &book.Pyear, &book.Price, &book.Sales, &book.Stock, &book.ImgPath)
+	if err != nil {
+		return nil
+	}
+	return book
+}

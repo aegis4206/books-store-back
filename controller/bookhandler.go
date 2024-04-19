@@ -12,10 +12,10 @@ import (
 )
 
 func Books(w http.ResponseWriter, r *http.Request) {
-	res := SessionCheck(w, r)
-	if !res {
-		return
-	}
+	// sess := SessionCheck(w, r)
+	// if sess == nil {
+	// 	return
+	// }
 	fmt.Println("請求方法", r.Method)
 	// w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
