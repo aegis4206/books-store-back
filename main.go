@@ -16,11 +16,13 @@ func main() {
 	r.HandleFunc("/books", controller.Books).Methods("GET", "POST", "DELETE")
 	r.HandleFunc("/books/{Id}", controller.Books).Methods("PUT", "DELETE")
 	r.HandleFunc("/cart/{bookId}", controller.AddBookToCart).Methods("GET")
+	r.HandleFunc("/cart", controller.Cart).Methods("GET", "POST", "DELETE")
+	r.HandleFunc("/cart/{cartItemId}", controller.UpdateCartItem).Methods("DELETE", "PATCH")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://192.168.6.87:5173", "http://127.0.0.1:5173", "http://aegis4206.tplinkdns.com:5173"},
 		AllowCredentials: true,
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "PATCH"},
 		AllowedHeaders:   []string{"Accept", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization"},
 	})
 	handler := c.Handler(r)

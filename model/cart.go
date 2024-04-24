@@ -89,15 +89,16 @@ func GetCartItemByBookIdAndCartId(bookId string, cartId string) (*CartItem, erro
 	if err != nil {
 		return nil, err
 	}
-	// book := GetBookById(bookId)
-	// cartItem.Book = book
+	book := GetBookById(bookId)
+	cartItem.Book = book
 	return cartItem, nil
 }
 
-// 會變更的僅有數量
-func UpdateCartItemByBookIdAndCartId(bookId string, cartId string, bookCount int) error {
-	sqlStr := "update cart_items set count = $1 where book_id = $2 and cart_id = $3"
-	_, err := utils.Db.Exec(sqlStr, bookCount, bookId, cartId)
+// bookId string, cartId string, bookCount int, bookAmount int
+func UpdateCartItemByBookIdAndCartId(cartItem *CartItem) error {
+	sqlStr := "update cart_items set count = $1,amount = $2 where book_id = $3 and cart_id = $4"
+	// _, err := utils.Db.Exec(sqlStr, bookCount, bookAmount, bookId, cartId)
+	_, err := utils.Db.Exec(sqlStr, cartItem.Count, cartItem.GetAmount(), cartItem.Book.Id, cartItem.CartId)
 	if err != nil {
 		return err
 	}
@@ -105,7 +106,7 @@ func UpdateCartItemByBookIdAndCartId(bookId string, cartId string, bookCount int
 }
 
 func GetCartItemsByCartId(cartId string) ([]*CartItem, error) {
-	sqlStr := "select id,cart_id,count,amount,book_id from cart_items where cart_id = $1"
+	sqlStr := "select id,cart_id,count,amount,book_id from cart_items where cart_id = $1 order by id asc"
 	rows, err := utils.Db.Query(sqlStr, cartId)
 	if err != nil {
 		return nil, err
@@ -153,4 +154,27 @@ func UpdateCart(cart *Cart) error {
 	}
 
 	return nil
+}
+
+func DeleteCartItemsByCartId(cartId string) error {
+	sqlStr := "delete from cart_items where cart_id = $1"
+	_, err := utils.Db.Exec(sqlStr, cartId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func DeleteCartItemByCartItemId(cartItemId string) error {
+	sqlStr := "delete from cart_items where id = $1"
+	_, err := utils.Db.Exec(sqlStr, cartItemId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetAllCartItemByUserId(UserId string) []*CartItem {
+	var list []*CartItem
+	return list
 }
