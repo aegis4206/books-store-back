@@ -22,7 +22,7 @@ func Books(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		books, err := model.GetBooks()
 		if err != nil {
-			respHandle(w, "資料庫錯誤", 400, books)
+			respHandle(w, "資料庫錯誤", 400, err)
 			break
 		}
 		remoteAddr := r.RemoteAddr
@@ -43,9 +43,9 @@ func Books(w http.ResponseWriter, r *http.Request) {
 		}
 		respHandle(w, "請求成功", 200, book)
 	case "PUT":
-		vars := mux.Vars(r)
-		Id := vars["Id"]
-		fmt.Printf("更新編號%v!", Id)
+		// vars := mux.Vars(r)
+		// Id := vars["Id"]
+		// fmt.Printf("更新編號%v!", Id)
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			w.WriteHeader(500)
@@ -53,7 +53,7 @@ func Books(w http.ResponseWriter, r *http.Request) {
 		var data *model.Book
 		json.Unmarshal(body, &data)
 		defer r.Body.Close()
-		book, err := model.EditBook(Id, data)
+		book, err := model.EditBook(data)
 		if err != nil {
 			respHandle(w, "格式錯誤", 500, data)
 			break

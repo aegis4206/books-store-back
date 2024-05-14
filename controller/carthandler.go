@@ -192,11 +192,18 @@ func UpdateCartItem(w http.ResponseWriter, r *http.Request) {
 				respHandle(w, "資料庫錯誤", 400, err)
 				return
 			}
-			for k, v := range cart.CartItems {
-				if v.CartItemId == cartItemId {
-					cart.CartItems = append(cart.CartItems[:k], cart.CartItems[k+1:]...)
+			var newCartItems []*model.CartItem
+			// for k, v := range cart.CartItems {
+			// 	if v.CartItemId == cartItemId {
+			// 		cart.CartItems = append(cart.CartItems[:k], cart.CartItems[k+1:]...)
+			// 	}
+			// }
+			for _, v := range cart.CartItems {
+				if v.CartItemId != cartItemId {
+					newCartItems = append(newCartItems, v)
 				}
 			}
+			cart.CartItems = newCartItems
 			model.UpdateCart(cart)
 			respHandle(w, "成功刪除購物項", 200, cartItemId)
 			return
