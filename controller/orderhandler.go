@@ -3,12 +3,14 @@ package controller
 import (
 	"books-store/model"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/gorilla/mux"
 )
 
 func CheckOut(w http.ResponseWriter, r *http.Request) {
@@ -79,6 +81,7 @@ func CheckOut(w http.ResponseWriter, r *http.Request) {
 			Price:   price,
 			ImgPath: item.Book.ImgPath,
 			OrderId: orderUuid.String(),
+			BookId:  item.Book.Id,
 		}
 		err := model.AddOrderItem(oderItem)
 		if err != nil {
@@ -118,4 +121,27 @@ func GetOrdersByUserId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	respHandle(w, "請求成功", 200, orders)
+}
+
+func UpdateOrderState(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	orderId, err := vars["orderId"]
+	if !err {
+		respHandle(w, "訂單號碼錯誤", 400, err)
+		return
+	}
+	fmt.Println(orderId)
+	body, _ := io.ReadAll(r.Body)
+	var data *struct {
+		State string
+	}
+	json.Unmarshal(body, &data)
+	defer r.Body.Close()
+	fmt.Println(data.State)
+	sqlErr := model.UpdateOrderState(orderId, data.State)
+	if sqlErr != nil {
+		respHandle(w, "資料庫錯誤", 400, err)
+		return
+	}
+	respHandle(w, "訂單狀態已更新", 200, orderId)
 }

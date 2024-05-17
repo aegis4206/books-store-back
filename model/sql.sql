@@ -36,5 +36,8 @@ create table order_items(
 	price int,
 	imgPath varchar(100) not null,
 	order_Id uuid not null,
+	book_Id int not null,
 	foreign key (order_Id) references orders(id)
+	foreign key (book_Id) references orders(id)
+
 );

@@ -21,6 +21,7 @@ func main() {
 	r.HandleFunc("/checkout", controller.CheckOut).Methods("POST")
 	r.HandleFunc("/orders", controller.GetOrders).Methods("GET")
 	r.HandleFunc("/userorders", controller.GetOrdersByUserId).Methods("GET")
+	r.HandleFunc("/order/{orderId}", controller.UpdateOrderState).Methods("PATCH")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://192.168.6.87:5173", "http://127.0.0.1:5173", "http://aegis4206.tplinkdns.com:5173"},
