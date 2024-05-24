@@ -65,6 +65,15 @@ func EditBook(book *Book) (*Book, error) {
 		return nil, err
 	}
 
+	if book.ImgPath == "" {
+		sqlStr := "update books set title=$2,author=$3,pyear=$4,price=$5,sales=$6,stock=$7 where id = $1"
+		_, err = utils.Db.Exec(sqlStr, &book.Id, &book.Title, &book.Author, &book.Pyear, &book.Price, &book.Sales, &book.Stock)
+		if err != nil {
+			return nil, err
+		}
+		return book, nil
+	}
+
 	sqlStr := "update books set title=$2,author=$3,pyear=$4,price=$5,sales=$6,stock=$7,imgpath=$8 where id = $1"
 	_, err = utils.Db.Exec(sqlStr, &book.Id, &book.Title, &book.Author, &book.Pyear, &book.Price, &book.Sales, &book.Stock, fileBytes)
 	if err != nil {

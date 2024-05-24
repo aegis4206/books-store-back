@@ -130,7 +130,7 @@ func GetCartItemsByCartId(cartId string) ([]*CartItem, error) {
 }
 
 func GetCartByUserId(userId string) (*Cart, error) {
-	sqlStr := "select id,total_count,total_amount,user_id from carts where user_id = $1"
+	sqlStr := "select id,total_count,total_amount,user_id from carts where user_id = $1 order by id desc"
 	row := utils.Db.QueryRow(sqlStr, userId)
 	cart := &Cart{}
 	err := row.Scan(&cart.CartId, &cart.TotalCount, &cart.TotalAmount, &cart.UserId)
