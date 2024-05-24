@@ -14,6 +14,7 @@ func main() {
 	r.HandleFunc("/logout", controller.Logout).Methods("GET")
 	r.HandleFunc("/regist", controller.Regist).Methods("POST")
 	r.HandleFunc("/books", controller.Books).Methods("GET", "POST", "DELETE", "PUT")
+	r.HandleFunc("/bookimg/{Id}", controller.BookImg).Methods("GET")
 	r.HandleFunc("/books/{Id}", controller.Books).Methods("DELETE")
 	r.HandleFunc("/cart/{bookId}", controller.AddBookToCart).Methods("GET")
 	r.HandleFunc("/cart", controller.Cart).Methods("GET", "POST", "DELETE")

@@ -2,6 +2,7 @@ package model
 
 import (
 	"books-store/utils"
+	"encoding/base64"
 	"fmt"
 
 	"strings"
@@ -30,16 +31,27 @@ func GetBooks() ([]*Book, error) {
 	var books []*Book
 	for rows.Next() {
 		var book *Book = &Book{}
-		rows.Scan(&book.Id, &book.Title, &book.Author, &book.Pyear, &book.Price, &book.Sales, &book.Stock, &book.ImgPath)
+		var picData []byte
+		rows.Scan(&book.Id, &book.Title, &book.Author, &book.Pyear, &book.Price, &book.Sales, &book.Stock, &picData)
+		base64Data := base64.StdEncoding.EncodeToString(picData)
+		if base64Data == "" {
+			book.ImgPath = ""
+		} else {
+			book.ImgPath = book.Id
+		}
 		books = append(books, book)
 	}
 	return books, nil
 }
 
 func AddBook(book *Book) (*Book, error) {
-	fmt.Println(book)
+	fileBytes, err := base64.StdEncoding.DecodeString(book.ImgPath)
+	if err != nil {
+		return nil, err
+	}
+
 	sqlStr := "insert into books(title,author,pyear,price,sales,stock,imgpath) values($1,$2,$3,$4,$5,$6,$7)"
-	_, err := utils.Db.Exec(sqlStr, &book.Title, &book.Author, &book.Pyear, &book.Price, &book.Sales, &book.Stock, &book.ImgPath)
+	_, err = utils.Db.Exec(sqlStr, &book.Title, &book.Author, &book.Pyear, &book.Price, &book.Sales, &book.Stock, fileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -47,9 +59,14 @@ func AddBook(book *Book) (*Book, error) {
 }
 
 func EditBook(book *Book) (*Book, error) {
-	fmt.Println(book)
+	// fmt.Println(book)
+	fileBytes, err := base64.StdEncoding.DecodeString(book.ImgPath)
+	if err != nil {
+		return nil, err
+	}
+
 	sqlStr := "update books set title=$2,author=$3,pyear=$4,price=$5,sales=$6,stock=$7,imgpath=$8 where id = $1"
-	_, err := utils.Db.Exec(sqlStr, &book.Id, &book.Title, &book.Author, &book.Pyear, &book.Price, &book.Sales, &book.Stock, &book.ImgPath)
+	_, err = utils.Db.Exec(sqlStr, &book.Id, &book.Title, &book.Author, &book.Pyear, &book.Price, &book.Sales, &book.Stock, fileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -71,9 +88,27 @@ func GetBookById(bookId string) *Book {
 	sqlStr := "select id,title,author,pyear,price,sales,stock,imgpath from books where id = $1"
 	row := utils.Db.QueryRow(sqlStr, bookId)
 	book := &Book{}
-	err := row.Scan(&book.Id, &book.Title, &book.Author, &book.Pyear, &book.Price, &book.Sales, &book.Stock, &book.ImgPath)
+	var picData []byte
+	err := row.Scan(&book.Id, &book.Title, &book.Author, &book.Pyear, &book.Price, &book.Sales, &book.Stock, &picData)
 	if err != nil {
 		return nil
 	}
+	base64Data := base64.StdEncoding.EncodeToString(picData)
+	if base64Data == "" {
+		book.ImgPath = ""
+	} else {
+		book.ImgPath = book.Id
+	}
 	return book
+}
+
+func GetBookImgById(bookId string) []byte {
+	sqlStr := "select imgpath from books where id = $1"
+	row := utils.Db.QueryRow(sqlStr, bookId)
+	var picData []byte
+	row.Scan(&picData)
+	if picData == nil {
+		return nil
+	}
+	return picData
 }

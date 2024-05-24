@@ -18,7 +18,7 @@ func CheckOut(w http.ResponseWriter, r *http.Request) {
 	if sess == nil {
 		return
 	}
-	var list []int
+	var list []string
 	body, _ := io.ReadAll(r.Body)
 	json.Unmarshal(body, &list)
 	defer r.Body.Close()
@@ -30,8 +30,8 @@ func CheckOut(w http.ResponseWriter, r *http.Request) {
 	var newCartItems []*model.CartItem
 	for _, item := range cart.CartItems {
 		for _, id := range list {
-			itemId, _ := strconv.Atoi(item.CartItemId)
-			if itemId == id {
+			// itemId, _ := strconv.Atoi(item.CartItemId)
+			if item.CartItemId == id {
 				model.DeleteCartItemByCartItemId(item.CartItemId)
 
 				checkoutItems = append(checkoutItems, item)

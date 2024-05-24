@@ -87,3 +87,19 @@ func Books(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func BookImg(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	Id, err := vars["Id"]
+	if !err {
+		respHandle(w, "參數錯誤", 500, nil)
+		return
+	}
+	pic := model.GetBookImgById(Id)
+	if pic == nil {
+		respHandle(w, "資料庫無圖片", 400, nil)
+		return
+	}
+	w.Header().Set("Content-Type", "image/jpeg")
+	w.Write(pic)
+}
